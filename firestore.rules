@@ -1,0 +1,62 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: complaints
+    // Document ID: auto-generated
+    // Fields:
+    //   - name: string (required, length 1-100)
+    //   - mobile: string (required, length 1-20)
+    //   - country: string (optional, length 0-100)
+    //   - state: string (optional, length 0-100)
+    //   - city: string (optional, length 0-100)
+    //   - pinCode: string (optional, length 0-20)
+    //   - title: string (required, length 1-200)
+    //   - description: string (required, length 1-2000)
+    //   - createdAt: timestamp (required)
+    //
+    // ===============================================================
+
+    // Helper Functions
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    function validStringLength(field, minLen, maxLen) {
+      return request.resource.data[field] is string &&
+        request.resource.data[field].size() >= minLen &&
+        request.resource.data[field].size() <= maxLen;
+    }
+
+    function isValidOptionalString(field, minLen, maxLen) {
+      return !(field in request.resource.data) ||
+             (request.resource.data[field] is string &&
+              request.resource.data[field].size() >= minLen &&
+              request.resource.data[field].size() <= maxLen);
+    }
+
+    function isValidComplaint(data) {
+      return hasRequiredFields(['name', 'mobile', 'title', 'description', 'createdAt']) &&
+             validStringLength('name', 1, 100) &&
+             validStringLength('mobile', 1, 20) &&
+             isValidOptionalString('country', 0, 100) &&
+             isValidOptionalString('state', 0, 100) &&
+             isValidOptionalString('city', 0, 100) &&
+             isValidOptionalString('pinCode', 0, 20) &&
+             validStringLength('title', 1, 200) &&
+             validStringLength('description', 1, 2000) &&
+             request.resource.data.createdAt is timestamp;
+    }
+
+    match /complaints/{complaintId} {
+      // Anyone can create a complaint (anonymous submission allowed)
+      allow create: if isValidComplaint(request.resource.data);
+      // Only admins can read, update, delete (no admins defined yet, so deny all)
+      allow read, update, delete: if false;
+    }
+  }
+}

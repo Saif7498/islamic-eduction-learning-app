@@ -1,0 +1,54 @@
+{
+  "entities": {
+    "Complaint": {
+      "title": "Complaint",
+      "description": "A user complaint or issue report",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the user"
+        },
+        "mobile": {
+          "type": "string",
+          "description": "Mobile number with country code"
+        },
+        "country": {
+          "type": "string",
+          "description": "Country of the user"
+        },
+        "state": {
+          "type": "string",
+          "description": "State of the user"
+        },
+        "city": {
+          "type": "string",
+          "description": "City or village of the user"
+        },
+        "pinCode": {
+          "type": "string",
+          "description": "Postal code"
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the complaint"
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed description of the issue"
+        },
+        "createdAt": {
+          "type": "timestamp",
+          "description": "When the complaint was submitted"
+        }
+      },
+      "required": ["name", "mobile", "title", "description", "createdAt"]
+    }
+  },
+  "firestore": {
+    "complaints/{complaintId}": {
+      "schema": "Complaint",
+      "description": "Stores user complaints and issue reports"
+    }
+  }
+}
